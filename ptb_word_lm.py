@@ -199,14 +199,15 @@ class PTBModel(object):
     return outputs, (tf.contrib.rnn.LSTMStateTuple(h=h, c=c),)
 
   def _get_lstm_cell(self, config, is_training):
-    if config.rnn_mode == BASIC:
-      return tf.contrib.rnn.BasicLSTMCell(
-          config.hidden_size, forget_bias=0.0, state_is_tuple=True,
-          reuse=not is_training)
-    if config.rnn_mode == BLOCK:
-      return tf.contrib.rnn.LSTMBlockCell(
-          config.hidden_size, forget_bias=0.0)
-    raise ValueError("rnn_mode %s not supported" % config.rnn_mode)
+    # if config.rnn_mode == BASIC:
+    #   # return tf.contrib.rnn.BasicLSTMCell(
+    #   #     config.hidden_size, forget_bias=0.0, state_is_tuple=True,
+    #   #     reuse=not is_training)
+    return tf.nn.rnn_cell.LSTMCell(config.hidden_size, forget_bias=0.0, reuse=not is_training)
+    # if config.rnn_mode == BLOCK:
+    #   return tf.contrib.rnn.LSTMBlockCell(
+    #       config.hidden_size, forget_bias=0.0)
+    # raise ValueError("rnn_mode %s not supported" % config.rnn_mode)
 
   def _build_rnn_graph_lstm(self, inputs, config, is_training):
     """Build the inference graph using canonical LSTM cells."""
