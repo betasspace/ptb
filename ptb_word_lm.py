@@ -198,16 +198,16 @@ class PTBModel(object):
     outputs = tf.reshape(outputs, [-1, config.hidden_size])
     return outputs, (tf.contrib.rnn.LSTMStateTuple(h=h, c=c),)
 
-  def _get_lstm_cell(self, config, is_training):
-    # if config.rnn_mode == BASIC:
-    #   # return tf.contrib.rnn.BasicLSTMCell(
-    #   #     config.hidden_size, forget_bias=0.0, state_is_tuple=True,
-    #   #     reuse=not is_training)
-    return tf.nn.rnn_cell.LSTMCell(config.hidden_size, forget_bias=0.0, reuse=not is_training)
-    # if config.rnn_mode == BLOCK:
-    #   return tf.contrib.rnn.LSTMBlockCell(
-    #       config.hidden_size, forget_bias=0.0)
-    # raise ValueError("rnn_mode %s not supported" % config.rnn_mode)
+  # def _get_lstm_cell(self, config, is_training):
+  #   # if config.rnn_mode == BASIC:
+  #   #   # return tf.contrib.rnn.BasicLSTMCell(
+  #   #   #     config.hidden_size, forget_bias=0.0, state_is_tuple=True,
+  #   #   #     reuse=not is_training)
+  #   return tf.nn.rnn_cell.LSTMCell(config.hidden_size, forget_bias=0.0, reuse=not is_training)
+  #   # if config.rnn_mode == BLOCK:
+  #   #   return tf.contrib.rnn.LSTMBlockCell(
+  #   #       config.hidden_size, forget_bias=0.0)
+  #   # raise ValueError("rnn_mode %s not supported" % config.rnn_mode)
 
   def _build_rnn_graph_lstm(self, inputs, config, is_training):
     """Build the inference graph using canonical LSTM cells."""
@@ -215,13 +215,13 @@ class PTBModel(object):
     # initialized to 1 but the hyperparameters of the model would need to be
     # different than reported in the paper.
     def make_cell():
-      cell = self._get_lstm_cell(config, is_training)
+      cell = tf.nn.rnn_cell.LSTMCell(config.hidden_size, forget_bias=0.0, reuse=not is_training)
       if is_training and config.keep_prob < 1:
-        cell = tf.contrib.rnn.DropoutWrapper(
+        cell = tf.nn.rnn_cell.DropoutWrapper(
             cell, output_keep_prob=config.keep_prob)
       return cell
 
-    cell = tf.contrib.rnn.MultiRNNCell(
+    cell = tf.nn.rnn_cell.MultiRNNCell(
         [make_cell() for _ in range(config.num_layers)], state_is_tuple=True)
 
     self._initial_state = cell.zero_state(config.batch_size, data_type())
